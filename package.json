@@ -1,0 +1,23 @@
+{
+    "name": "vanilla",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "serve": "npm run build && vite preview"
+    },
+    "devDependencies": {
+        "vite": "^3.0.0"
+    },
+    "dependencies": {
+        "ccapture.js": "^1.1.0",
+        "ffmpeg": "^0.0.4",
+        "three": "^0.142.0"
+    },
+    "server": {
+        "host": true
+    }
+}
