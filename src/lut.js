@@ -6,8 +6,8 @@ import { LUT3dlLoader } from '../examples/jsm/loaders/LUT3dlLoader.js';
 class Lut {
     params = {
         enabled: true,
-        lut: 'Bourbon 64.CUBE',
-        // lut: 'Cubicle 99.CUBE',
+        // lut: 'Bourbon 64.CUBE',
+        lut: 'Cubicle 99.CUBE',
         intensity: 1,
         use2DLut: false,
     };

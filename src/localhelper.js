@@ -1,9 +1,9 @@
-var textureWire = new THREE.TextureLoader().load('maps/wire.jpg');
-var textureMask = new THREE.TextureLoader().load('maps/mask.jpg');
-var textureMaskInvert = new THREE.TextureLoader().load('maps/mask_invert.jpg');
-var textureNoise = new THREE.TextureLoader().load('maps/noise.jpg');
-var textureGrunge = new THREE.TextureLoader().load('maps/Grunge Texture Square.png');
-var textureLens = new THREE.TextureLoader().load('maps/texture_01_Square.png');
+const textureWire = new THREE.TextureLoader().load('maps/wire.jpg');
+const textureMask = new THREE.TextureLoader().load('maps/mask.jpg');
+const textureMaskInvert = new THREE.TextureLoader().load('maps/mask_invert.jpg');
+const textureNoise = new THREE.TextureLoader().load('maps/noise.jpg');
+const textureGrunge = new THREE.TextureLoader().load('maps/Grunge Texture Square.png');
+const textureLens = new THREE.TextureLoader().load('maps/texture_01_Square.png');
 
 const rad = Math.PI / 180
 
@@ -118,4 +118,24 @@ export function addContent(texture) {
 
 
     return nullMesh
+}
+
+
+
+// give random start. for better deept feeling.
+export function addStar(scene) {
+
+    function addStar() {
+        const geometry = new THREE.SphereGeometry(0.05);
+        const material = new THREE.MeshStandardMaterial({ color: 0xffffff })
+        const star = new THREE.Mesh(geometry, material);
+        const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100))
+
+        star.position.set(x, y, z);
+        scene.add(star)
+    }
+
+
+    Array(550).fill().forEach(addStar)
+
 }

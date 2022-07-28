@@ -13,9 +13,10 @@
         "vite": "^3.0.0"
     },
     "dependencies": {
+        "@tweenjs/tween.js": "^18.6.4",
         "ccapture.js": "^1.1.0",
         "ffmpeg": "^0.0.4",
-        "three": "^0.142.0"
+        "three": "^0.143.0"
     },
     "server": {
         "host": true

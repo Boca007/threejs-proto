@@ -1,24 +1,12 @@
 import './style.css'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { EffectComposer } from '../examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from '../examples/jsm/postprocessing/RenderPass';
-import { ShaderPass } from '../examples/jsm/postprocessing/ShaderPass.js';
-// import { TexturePass } from '../examples/jsm/postprocessing/TexturePass.js';
-import { ClearPass } from '../examples/jsm/postprocessing/ClearPass.js';
-import { MaskPass, ClearMaskPass } from '../examples/jsm/postprocessing/MaskPass.js';
-import { CopyShader } from '../examples/jsm/shaders/CopyShader.js';
-// import { LUTPass } from '../examples/jsm/postprocessing/LUTPass.js';
-// import { LUTCubeLoader } from '../examples/jsm/loaders/LUTCubeLoader.js';
-// import { LUT3dlLoader } from '../examples/jsm/loaders/LUT3dlLoader.js';
-import { BloomPass } from '../examples/jsm/postprocessing/BloomPass.js';
-import { FilmPass } from '../examples/jsm/postprocessing/FilmPass.js';
-import { DotScreenPass } from '../examples/jsm/postprocessing/DotScreenPass.js';
 
 
-import { addContent } from './localhelper.js';
-import { Lut } from './lut.js';
+import { addContent, addStar } from './localhelper.js';
+import { Composer } from './composer.js';
 
+// import { TWEEN } from '../node_modules/@tweenjs/tween.js/dist/tween.cjs.js'
 
 let camera, composer, renderer, capturer
 let scene, sceneFront, sceneBack, sceneLeft, sceneRight, sceneTop, sceneBottom
@@ -29,7 +17,8 @@ let lutPass
 var material
 var sideFront, sideBack, sideLeft, sideRight, sideTop, sideBottom
 var sideFrontMask, sideBackMask, sideLeftMask, sideRightMask, sideTopMask, sideBottomMask
-
+let sideFrontMaskRoot, sideBackMaskRoot, sideLeftMaskRoot, sideRightMaskRoot, sideTopMaskRoot, sideBottomMaskRoot
+let front, back, left, right, top, bottom
 
 const textureImage01 = new THREE.TextureLoader().load('maps/image-01.jpg');
 const textureImage02 = new THREE.TextureLoader().load('maps/image-02.jpg');
@@ -40,28 +29,15 @@ const textureImage06 = new THREE.TextureLoader().load('maps/image-06.jpg');
 
 
 const rad = Math.PI / 180
-
-// const params = {
-//     enabled: true,
-//     lut: 'Bourbon 64.CUBE',
-//     // lut: 'Cubicle 99.CUBE',
-//     intensity: 1,
-//     use2DLut: false,
-// };
-
-// const lutMap = {
-//     'Bourbon 64.CUBE': null,
-//     'Chemical 168.CUBE': null,
-//     'Clayton 33.CUBE': null,
-//     'Cubicle 99.CUBE': null,
-//     'Remy 24.CUBE': null,
-//     'Presetpro-Cinematic.3dl': null
-// };
+var boxRotation = 0
 
 init()
 render()
 
 function init() {
+
+    // cubeRoot= new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+
     scene = new THREE.Scene();
     // scene.background = new THREE.Color(0.6, 0.6, 0.6);
     // scene.clearColor = new THREE.Color(0, 1, 0);
@@ -90,64 +66,40 @@ function init() {
     sceneBottomMask = new THREE.Scene();
 
 
+
     // camera definition.
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 20;
+    camera.position.z = 10;
+
+    // camera.position.z = 15;
     // camera.position.x = 15;
     // camera.position.y = 15;
-
-
-    // Object.keys(lutMap).forEach(name => {
-
-    //     if (/\.CUBE$/i.test(name)) {
-
-    //         new LUTCubeLoader()
-    //             .load('examples/luts/' + name, function(result) {
-
-    //                 lutMap[name] = result;
-
-    //             });
-
-    //     } else {
-
-    //         new LUT3dlLoader()
-    //             .load('examples/luts/' + name, function(result) {
-
-    //                 lutMap[name] = result;
-
-    //             });
-
-    //     }
-
-    // });
-    lutPass = new Lut()
-    lutPass.lutLoad()
 
 
 
 
     // content definition for the sides
-    var front = addContent(textureImage01)
+    front = addContent(textureImage01)
     sceneFront.add(front)
 
-    var back = addContent(textureImage02)
+    back = addContent(textureImage02)
     back.rotation.y = Math.PI
     sceneBack.add(back)
 
-    var left = addContent(textureImage03)
+    left = addContent(textureImage03)
     left.rotation.y = -Math.PI / 2;
     sceneLeft.add(left)
 
-    var right = addContent(textureImage04)
+    right = addContent(textureImage04)
     right.rotation.y = Math.PI / 2;
     sceneRight.add(right)
 
 
-    var top = addContent(textureImage05)
+    top = addContent(textureImage05)
     top.rotation.x = -Math.PI / 2
     sceneTop.add(top)
 
-    var bottom = addContent(textureImage06)
+    bottom = addContent(textureImage06)
     bottom.rotation.x = Math.PI / 2;
     sceneBottom.add(bottom)
 
@@ -164,124 +116,93 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
 
-    // capturer = new CCapture({
-    //     format: 'png',
-    //     framerate: 60,
-    //     quality: 90,
-    //     verbose: true,
-    //     display: true,
-
-    // });
-
-
-
-    capturer = null;
-
-    var sCB = document.getElementById('start-capturing-button'),
-        dVB = document.getElementById('download-video-button'),
-        progress = document.getElementById('progress');
-
-    console.log(sCB)
-
-    sCB.addEventListener('click', function(e) {
-
-        capturer = new CCapture({
-            verbose: true,
-            framerate: 60,
-            // motionBlurFrames: 16,
-            quality: 90,
-            // format: 'gif',
-            format: 'png',
-            // workersPath: '.',
-            onProgress: function(p) { progress.style.width = (p * 100) + '%' }
-        });
-
-        capturer.start();
-        this.style.display = 'none';
-        dVB.style.display = 'block';
-
-        // start();
-
-        e.preventDefault();
-    }, false);
-
-    dVB.addEventListener('click', function(e) {
-        capturer.stop();
-        this.style.display = 'none';
-        //this.setAttribute( 'href',  );
-        capturer.save();
-    }, false);
 
 
 
 
-    // the 6 side definition happening here. with material. 
+    // capturer = null;
 
-    // var materialSide = new THREE.MeshLambertMaterial({ map: textureWire });
-    // materialSide.minFilter = THREE.LinearFilter;
-    // materialSide.blending = THREE.AdditiveBlending
+    // var sCB = document.getElementById('start-capturing-button'),
+    //     dVB = document.getElementById('download-video-button'),
+    //     progress = document.getElementById('progress');
 
-    // sideFront = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // // sideFront.material.side = THREE.DoubleSide;
-    // sideFront.position.z = 5;
-    // // sceneFront.add(sideFront);
+    // console.log(sCB)
 
-    // sideBack = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // sideBack.position.z = -5;
-    // sideBack.rotation.y = Math.PI
-    //     // sceneBack.add(sideBack);
+    // sCB.addEventListener('click', function(e) {
 
-    // sideLeft = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // sideLeft.position.x = -5;
-    // sideLeft.rotation.y = -Math.PI / 2;
-    // // sceneLeft.add(sideLeft);
+    //     capturer = new CCapture({
+    //         verbose: true,
+    //         display: true,
 
-    // sideRight = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // sideRight.position.x = 5;
-    // sideRight.rotation.y = Math.PI / 2;
-    // // sceneRight.add(sideRight);
+    //         framerate: 60,
+    //         // motionBlurFrames: 16,
+    //         quality: 90,
+    //         // format: 'gif',
+    //         format: 'png',
+    //         // workersPath: '.',
+    //         onProgress: function(p) { progress.style.width = (p * 100) + '%' }
+    //     });
 
-    // sideTop = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // sideTop.position.y = 5;
-    // sideTop.rotation.x = -Math.PI / 2;
-    // // sceneTop.add(sideTop);
+    //     capturer.start();
+    //     this.style.display = 'none';
+    //     dVB.style.display = 'block';
 
-    // sideBottom = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), materialSide);
-    // sideBottom.position.y = -5;
-    // sideBottom.rotation.x = Math.PI / 2;
-    // // sceneBottom.add(sideBottom);
+    //     // start();
+
+    //     e.preventDefault();
+    // }, false);
+
+    // dVB.addEventListener('click', function(e) {
+    //     capturer.stop();
+    //     this.style.display = 'none';
+    //     //this.setAttribute( 'href',  );
+    //     capturer.save();
+    // }, false);
 
 
+
+    sideFrontMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+    sideBackMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+    sideLeftMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+    sideRightMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+    sideTopMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
+    sideBottomMaskRoot = new THREE.Mesh(new THREE.PlaneGeometry(0, 0))
 
     // the cube 6 side mask definition here. if the content side size, pos, change should reflec the changes here too.
     sideFrontMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideFrontMask.position.z = 5;
-    sceneFrontMask.add(sideFrontMask);
+    sceneFrontMask.add(sideFrontMaskRoot);
+    sideFrontMaskRoot.add(sideFrontMask);
 
     sideBackMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideBackMask.position.z = -5;
     sideBackMask.rotation.y = Math.PI
-    sceneBackMask.add(sideBackMask);
+    sceneBackMask.add(sideBackMaskRoot);
+    sideBackMaskRoot.add(sideBackMask);
 
     sideLeftMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideLeftMask.position.x = -5;
     sideLeftMask.rotation.y = -Math.PI / 2;
-    sceneLeftMask.add(sideLeftMask);
+    sceneLeftMask.add(sideLeftMaskRoot);
+    sideLeftMaskRoot.add(sideLeftMask);
 
     sideRightMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideRightMask.position.x = 5;
     sideRightMask.rotation.y = Math.PI / 2;
-    sceneRightMask.add(sideRightMask);
+    sceneRightMask.add(sideRightMaskRoot);
+    sideRightMaskRoot.add(sideRightMask);
 
     sideTopMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideTopMask.position.y = 5;
     sideTopMask.rotation.x = -Math.PI / 2;
-    sceneTopMask.add(sideTopMask);
+    sceneTopMask.add(sideTopMaskRoot);
+    sideTopMaskRoot.add(sideTopMask);
 
     sideBottomMask = new THREE.Mesh(new THREE.PlaneGeometry(10, 10));
     sideBottomMask.position.y = -5;
     sideBottomMask.rotation.x = Math.PI / 2;
-    sceneBottomMask.add(sideBottomMask);
+    sceneBottomMask.add(sideBottomMaskRoot);
+    sideBottomMaskRoot.add(sideBottomMask);
 
 
 
@@ -311,7 +232,16 @@ function init() {
 
 
     // 3d star definition.
-    Array(550).fill().forEach(addStar)
+    // addStar(scene)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -326,104 +256,34 @@ function init() {
     controls.update();
     controls.listenToKeyEvents(window);
 
-    // EFFECT COMPOSER
-    // ***********************
-
-    var parameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, stencilBuffer: true };
-    const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, parameters);
-
-    // renderPass definitions
-
-    var renderPass = new RenderPass(scene, camera);
-    renderPass.clear = false;
-
-    var renderPassFront = new RenderPass(sceneFront, camera);
-    // renderPassFront.clearColor = new THREE.Color(0, 0, 0);
-    // renderPassFront.clearAlpha = 0;
-    renderPassFront.clear = false;
-    // renderPassFront.renderToScreen = true;
-
-    var renderPassBack = new RenderPass(sceneBack, camera);
-    renderPassBack.clear = false;
-
-    var renderPassLeft = new RenderPass(sceneLeft, camera);
-    renderPassLeft.clear = false;
-
-    var renderPassRight = new RenderPass(sceneRight, camera);
-    renderPassRight.clear = false;
-
-    var renderPassTop = new RenderPass(sceneTop, camera);
-    renderPassTop.clear = false;
-
-    var renderPassBottom = new RenderPass(sceneBottom, camera);
-    renderPassBottom.clear = false;
 
 
-    // maskPass defintions this will mask the whole scene render side by side.
-    const maskPassFront = new MaskPass(sceneFrontMask, camera);
-    const maskPassBack = new MaskPass(sceneBackMask, camera);
-    const maskPassLeft = new MaskPass(sceneLeftMask, camera);
-    const maskPassRight = new MaskPass(sceneRightMask, camera);
-    const maskPassTop = new MaskPass(sceneTopMask, camera);
-    const maskPassBottom = new MaskPass(sceneBottomMask, camera);
+
+    composer = new Composer(renderer, scene, sceneFront, sceneBack, sceneLeft, sceneRight, sceneTop, sceneBottom, sceneFrontMask, sceneBackMask, sceneLeftMask, sceneRightMask, sceneTopMask, sceneBottomMask, camera)
+    composer.init()
 
 
-    const clearPass = new ClearPass();
-    const clearMaskPass = new ClearMaskPass();
-    const outputPass = new ShaderPass(CopyShader);
 
 
-    // lutPass = new LUTPass();
-    const effectFilm = new FilmPass(0.35, 0.025, 648, false);
-    const effectBloom = new BloomPass(0.5);
-    const effectFilmBW = new FilmPass(0.35, 0.5, 2048, true);
-    const effectDotScreen = new DotScreenPass(new THREE.Vector2(0, 0), 0.5, 0.8);
 
 
-    // composition magic. mask, draw, clear mask... mask, draw, clear
-    composer = new EffectComposer(renderer, renderTarget);
+    var rotateLeft = document.getElementById('rotate-left')
+    var rotateRight = document.getElementById('rotate-right')
 
-    composer.addPass(clearPass);
-    composer.addPass(clearMaskPass);
+    rotateLeft.addEventListener('click', function(e) {
+        boxRotation += 90
+        animation(boxRotation)
+    }, false);
 
-    composer.addPass(maskPassFront);
-    composer.addPass(renderPassFront);
-    composer.addPass(clearMaskPass);
-
-    composer.addPass(maskPassBack);
-    composer.addPass(renderPassBack);
-    composer.addPass(clearMaskPass);
-
-    composer.addPass(maskPassLeft);
-    composer.addPass(renderPassLeft);
-    composer.addPass(clearMaskPass);
-
-    composer.addPass(maskPassRight);
-    composer.addPass(renderPassRight);
-    composer.addPass(clearMaskPass);
-
-    composer.addPass(maskPassTop);
-    composer.addPass(renderPassTop);
-    composer.addPass(clearMaskPass);
-
-    composer.addPass(maskPassBottom);
-    composer.addPass(renderPassBottom);
-    composer.addPass(clearMaskPass);
-
-    // the stars particle
-    composer.addPass(renderPass);
-
-    composer.addPass(lutPass.lutPass);
-
-    // composer.addPass(effectFilm);
-    // composer.addPass(effectFilmBW);
-
-    // composer.addPass(effectBloom);
-
-    // composer.addPass(effectDotScreen);
+    rotateRight.addEventListener('click', function(e) {
+        boxRotation -= 90
+        animation(boxRotation)
+    }, false);
 
 
-    composer.addPass(outputPass);
+
+
+
 
 
 
@@ -432,36 +292,81 @@ function init() {
 }
 
 
+function animation(degree) {
+
+    const speed = 1000
+    const animType = TWEEN.Easing.Quartic.InOut
+    const animType2 = TWEEN.Easing.Quadratic.InOut
+    const cameraPosStart = 11
+    const cameraPosEnd = 15
 
 
+    new TWEEN.Tween(sideFrontMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(front.rotation).to({ y: degree * rad }, speed).easing(animType).start()
 
+    new TWEEN.Tween(sideBackMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(back.rotation).to({ y: (degree - 180) * rad }, speed).easing(animType).start()
+
+    new TWEEN.Tween(sideLeftMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(left.rotation).to({ y: (degree - 90) * rad }, speed).easing(animType).start()
+
+    new TWEEN.Tween(sideRightMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(right.rotation).to({ y: (90 + degree) * rad }, speed).easing(animType).start()
+
+    new TWEEN.Tween(sideTopMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(top.rotation).to({ z: degree * rad }, speed).easing(animType).start()
+
+    new TWEEN.Tween(sideBottomMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
+    new TWEEN.Tween(bottom.rotation).to({ z: -degree * rad }, speed).easing(animType).start()
+
+    new TWEEN.Tween(camera.position).to({ z: cameraPosEnd }, speed / 2).easing(animType2).start().onComplete(() => {
+        new TWEEN.Tween(camera.position).to({ z: cameraPosStart }, speed / 2).easing(animType2).start()
+    })
+}
 
 
 
 function render() {
     requestAnimationFrame(render);
 
-    // const time = performance.now() * 0.001 + 6000;
-
-    // lutPass.enabled = params.enabled && Boolean(lutMap[params.lut]);
-    // lutPass.intensity = params.intensity;
-    // if (lutMap[params.lut]) {
-
-    //     const lut = lutMap[params.lut];
-    //     lutPass.lut = params.use2DLut ? lut.texture : lut.texture3D;
-
-    // }
-
-    lutPass.render()
+    const time = performance.now() * 0.001 + 6000;
+    // console.log(time)
 
 
-    // sceneFront.rotation.y += rad * 1
 
+
+
+
+    // sideFrontMaskRoot.rotation.y += rad * 1
+    // front.rotation.y += rad * 1
+    // sideBackMaskRoot.rotation.y += rad * 1
+    // back.rotation.y += rad * 1
+    // sideLeftMaskRoot.rotation.y += rad * 1
+    // left.rotation.y += rad * 1
+    // sideRightMaskRoot.rotation.y += rad * 1
+    // right.rotation.y += rad * 1
+    // sideTopMaskRoot.rotation.y += rad * 1
+    // top.rotation.z += rad * 1
+    // sideBottomMaskRoot.rotation.y += rad * 1
+    // bottom.rotation.z += -rad * 1
+
+    // camera.position.z -= +0.05
+
+    TWEEN.update()
+
+
+    // renderer.render(scene, camera)
     // renderer.render(sceneFront, camera)
+    // renderer.render(sceneBack, camera)
+    // renderer.render(sceneLeft, camera)
+    // renderer.render(sceneRight, camera)
+    // renderer.render(sceneTop, camera)
+    // renderer.render(sceneBottom, camera)
+
 
     // renderer.clear();
     // renderer.clearDepth();
-    composer.render();
+    composer.render()
     if (capturer) capturer.capture(renderer.domElement);
 }
 
@@ -476,17 +381,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
 
     renderer.setSize(width, height);
-    composer.setSize(width, height);
+    composer.composer.setSize(width, height);
 
 }
-
-// give random start. for better deept feeling.
-function addStar() {
-    const geometry = new THREE.SphereGeometry(0.05);
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff })
-    const star = new THREE.Mesh(geometry, material);
-    const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100))
-
-    star.position.set(x, y, z);
-    scene.add(star)
-}
+1
