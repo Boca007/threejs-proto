@@ -27,6 +27,9 @@ const textureImage04 = new THREE.TextureLoader().load('maps/image-04.jpg');
 const textureImage05 = new THREE.TextureLoader().load('maps/image-05.jpg');
 const textureImage06 = new THREE.TextureLoader().load('maps/image-06.jpg');
 
+const cameraPosZ = 15
+const cameraPosDistance = 5
+
 
 const rad = Math.PI / 180
 var boxRotation = 0
@@ -69,7 +72,7 @@ function init() {
 
     // camera definition.
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 10;
+    camera.position.z = cameraPosZ - cameraPosDistance
 
     // camera.position.z = 15;
     // camera.position.x = 15;
@@ -264,30 +267,8 @@ function init() {
 
 
 
-
-
-
-    var rotateLeft = document.getElementById('rotate-left')
-    var rotateRight = document.getElementById('rotate-right')
-
-    rotateLeft.addEventListener('click', function(e) {
-        boxRotation += 90
-        animation(boxRotation)
-    }, false);
-
-    rotateRight.addEventListener('click', function(e) {
-        boxRotation -= 90
-        animation(boxRotation)
-    }, false);
-
-
-
-
-
-
-
-
     window.addEventListener('resize', onWindowResize);
+    document.addEventListener("keydown", onDocumentKeyDown, false);
 
 }
 
@@ -297,8 +278,6 @@ function animation(degree) {
     const speed = 1000
     const animType = TWEEN.Easing.Quartic.InOut
     const animType2 = TWEEN.Easing.Quadratic.InOut
-    const cameraPosStart = 11
-    const cameraPosEnd = 15
 
 
     new TWEEN.Tween(sideFrontMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
@@ -319,8 +298,8 @@ function animation(degree) {
     new TWEEN.Tween(sideBottomMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start()
     new TWEEN.Tween(bottom.rotation).to({ z: -degree * rad }, speed).easing(animType).start()
 
-    new TWEEN.Tween(camera.position).to({ z: cameraPosEnd }, speed / 2).easing(animType2).start().onComplete(() => {
-        new TWEEN.Tween(camera.position).to({ z: cameraPosStart }, speed / 2).easing(animType2).start()
+    new TWEEN.Tween(camera.position).to({ z: cameraPosZ }, speed / 2).easing(animType2).start().onComplete(() => {
+        new TWEEN.Tween(camera.position).to({ z: cameraPosZ - cameraPosDistance }, speed / 2).easing(animType2).start()
     })
 }
 
@@ -383,5 +362,39 @@ function onWindowResize() {
     renderer.setSize(width, height);
     composer.composer.setSize(width, height);
 
+    if (width < 1000) camera.position.z = (cameraPosZ - cameraPosDistance) / width * 1000
+
+
+
 }
-1
+
+
+
+function onDocumentKeyDown(event) {
+    var keyCode = event.which;
+    if (keyCode == 87) {
+        console.log('87')
+
+
+    } else if (keyCode == 83) {
+
+        console.log('83')
+
+
+    } else if (keyCode == 65) {
+
+        boxRotation -= 90
+        animation(boxRotation)
+
+    } else if (keyCode == 68) {
+
+        boxRotation += 90
+        animation(boxRotation)
+
+    } else if (keyCode == 32) {
+        // cube.position.set(0, 0, 0);
+        console.log('space')
+    }
+
+
+};
