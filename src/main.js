@@ -313,9 +313,6 @@ function render() {
 
 
 
-
-
-
     // sideFrontMaskRoot.rotation.y += rad * 1
     // front.rotation.y += rad * 1
     // sideBackMaskRoot.rotation.y += rad * 1
