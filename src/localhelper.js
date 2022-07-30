@@ -64,7 +64,7 @@ export function addContent(texture) {
     line02Mesh.rotation.y = rad * 40
     line02Mesh.rotation.z = rad * 20
 
-    nullMesh.add(line01Mesh, line02Mesh);
+    // nullMesh.add(line01Mesh, line02Mesh);
 
 
     // plane noises in 3 layer. depth feeling
@@ -72,7 +72,7 @@ export function addContent(texture) {
     var noise02Plane = new THREE.PlaneGeometry(45, 45, 1, 1)
     var noise03Plane = new THREE.PlaneGeometry(45, 45, 1, 1)
 
-    var noiseMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1 });
+    var noiseMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 0.3, roughness: 1 });
     noiseMaterial.alphaMap = textureNoise;
     noiseMaterial.blending = THREE.AdditiveBlending
 
@@ -91,7 +91,7 @@ export function addContent(texture) {
 
     // top of the grunge
     var grungePlane = new THREE.PlaneGeometry(15, 15, 1, 1)
-    var grungeMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1, map: textureGrunge });
+    var grungeMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 0.3, roughness: 1, map: textureGrunge });
     grungeMaterial.blending = THREE.AdditiveBlending
     var grungeMesh = new THREE.Mesh(grungePlane, grungeMaterial)
     grungeMesh.position.z = 5
@@ -100,7 +100,7 @@ export function addContent(texture) {
 
     // top of the lanes plane
     var lensPlane = new THREE.PlaneGeometry(15, 15, 1, 1)
-    var lensMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1, map: textureLens });
+    var lensMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 0.3, roughness: 1, map: textureLens });
     lensMaterial.blending = THREE.AdditiveBlending
     var lensMesh = new THREE.Mesh(lensPlane, lensMaterial)
     lensMesh.position.z = 5
@@ -109,7 +109,7 @@ export function addContent(texture) {
 
     // top of the wire 
     var wirePlane = new THREE.PlaneGeometry(10, 10)
-    var wireMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1, map: textureWire });
+    var wireMaterial = new THREE.MeshStandardMaterial({ color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 0.3, roughness: 1, map: textureWire });
     wireMaterial.blending = THREE.AdditiveBlending
     var wireMesh = new THREE.Mesh(wirePlane, wireMaterial)
     wireMesh.position.z = 5
