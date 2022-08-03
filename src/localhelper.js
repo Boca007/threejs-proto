@@ -15,6 +15,7 @@ export function addContent(texture) {
     // create a null object. this will be the top of the hirearchy. so very simple to rotate, and every child will rotate too. the nullMesh is the return value
     const nullObject = new THREE.PlaneGeometry(0, 0)
     var nullMesh = new THREE.Mesh(nullObject)
+    var nullMeshRoot = new THREE.Mesh(nullObject)
 
     // image holographics area
     var image01Plane = new THREE.PlaneGeometry(15, 15, 1, 1)
@@ -114,10 +115,13 @@ export function addContent(texture) {
     var wireMesh = new THREE.Mesh(wirePlane, wireMaterial)
     wireMesh.position.z = 5
     nullMesh.add(wireMesh)
+    nullMeshRoot.add(nullMesh)
+
+    const axesHelper = new THREE.AxesHelper(5);
+    nullMeshRoot.add(axesHelper)
 
 
-
-    return nullMesh
+    return nullMeshRoot
 }
 
 

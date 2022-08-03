@@ -103,6 +103,8 @@ class Composer {
         this.composer.addPass(clearPass);
         this.composer.addPass(clearMaskPass);
 
+        this.composer.addPass(renderPass);
+
         this.composer.addPass(maskPassFront);
         this.composer.addPass(renderPassFront);
         this.composer.addPass(clearMaskPass);
@@ -128,7 +130,7 @@ class Composer {
         this.composer.addPass(clearMaskPass);
 
         // the stars particle
-        this.composer.addPass(renderPass);
+        // this.composer.addPass(renderPass);
 
         // this.composer.addPass(this.lutPass.lutPass);
 

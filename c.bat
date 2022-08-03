@@ -1,2 +1,2 @@
-conda activate threejs
-code .
+call conda activate threejs
+call code .

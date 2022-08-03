@@ -24,10 +24,10 @@ let sideFrontMaskRoot, sideBackMaskRoot, sideLeftMaskRoot, sideRightMaskRoot, si
 let sideFrontContent, sideBackContent, sideLeftContent, sideRightContent, sideTopContent, sideBottomContent;
 let sideFrontContentAxisZ, sideBackContentAxisZ, sideLeftContentAxisZ, sideRightContentAxisZ, sideTopContentAxisZ, sideBottomContentAxisZ;
 let pointLightFront;
+let cameraOriginOrbit
+
 
 var [cubeRotation, meshPositionXY, meshPositionZ, meshRotationXY, meshRotationZ, meshScale, cameraOrbit] = [true, true, true, true, true, true, false]
-
-var cameraOrbitRotation
 
 const textureImage01 = new THREE.TextureLoader().load("maps/image-01.jpg");
 const textureImage02 = new THREE.TextureLoader().load("maps/image-02.jpg");
@@ -57,10 +57,6 @@ let componentPosZ = 0.1
 const rad = Math.PI / 180;
 var boxRotationHorizontal = 0;
 var boxRotationVertical = 0;
-var rotationSwitch = true
-
-var rotationCounterHorizontal = 0
-var rotationCounterVertical = 0
 
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
@@ -111,14 +107,22 @@ function init() {
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = cameraPosZ - cameraPosDistance;
 
-    camera.position.z = 15;
-    camera.position.x = 15;
-    camera.position.y = 15;
+    cameraOriginOrbit = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
+    cameraOriginOrbit.add(camera)
+    scene.add(cameraOriginOrbit)
+
+    // camera.position.z = 15;
+    // camera.position.x = 15;
+    // camera.position.y = 15;
 
 
-    cameraOrbitRotation = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    cameraOrbitRotation.add(camera)
-    scene.add(cameraOrbitRotation)
+    // camera.position.copy(target);
+    // camera.position.x += Math.sin(camera.rotationy) * 3;
+    // camera.position.z += Math.cos(camera.rotationy) * 3;
+    // camera.position.y += cameraHeight; // optional
+    // tempVector.copy(target).y += cameraHeight; // the += is optional
+    // camera.lookAt(tempVector);
+
 
 
     // const near = 1;
@@ -372,121 +376,57 @@ function init() {
     document.addEventListener("mousedown", onMouseDown, false);
 }
 
-const speed = 500;
-const animType = TWEEN.Easing.Quartic.InOut;
-const animType2 = TWEEN.Easing.Quadratic.InOut;
-
-function rotate(content, axis, degree) {
-
-    if (axis == 'x') { new TWEEN.Tween(content.rotation).to({ x: content.rotation.x + degree * rad }, speed).easing(animType).start() }
-    if (axis == 'y') { new TWEEN.Tween(content.rotation).to({ y: content.rotation.y + degree * rad }, speed).easing(animType).start() }
-    if (axis == 'z') { new TWEEN.Tween(content.rotation).to({ z: content.rotation.z + degree * rad }, speed).easing(animType).start() }
-}
-
-
-function rorationCounterHorizontalMod(number) {
-    rotationCounterHorizontal += number
-
-    if (rotationCounterHorizontal == -1) rotationCounterHorizontal = 3
-    if (rotationCounterHorizontal == 4) rotationCounterHorizontal = 0
-}
-
-
-function rorationCounterVerticalMod(number) {
-    rotationCounterVertical += number
-
-    if (rotationCounterVertical == -1) rotationCounterVertical = 3
-    if (rotationCounterVertical == 4) rotationCounterVertical = 0
-}
-
-
 function animationSideHorizontal(degree) {
-    console.log('animationSideHorizontal ', rotationCounterHorizontal, rotationCounterVertical)
+    const speed = 1000;
+    const animType = TWEEN.Easing.Quartic.InOut;
+    const animType2 = TWEEN.Easing.Quadratic.InOut;
 
-    rotate(sideFrontContent, 'y', degree)
-    rotate(sideBackContent, 'y', degree)
-    rotate(sideLeftContent, 'y', degree)
-    rotate(sideRightContent, 'y', degree)
-    rotate(sideTopContent, 'z', degree)
-    rotate(sideBottomContent, 'z', -degree)
+    // new TWEEN.Tween(sideFrontMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideFrontContent.rotation).to({ y: degree * rad }, speed).easing(animType).start();
 
-    rotate(sideFrontMaskRoot, 'y', degree)
-    rotate(sideBackMaskRoot, 'y', degree)
-    rotate(sideLeftMaskRoot, 'y', degree)
-    rotate(sideRightMaskRoot, 'y', degree)
-    rotate(sideTopMaskRoot, 'y', degree)
-    rotate(sideBottomMaskRoot, 'y', degree)
+    // new TWEEN.Tween(sideBackMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideBackContent.rotation).to({ y: (degree - 180) * rad }, speed).easing(animType).start();
+
+    // new TWEEN.Tween(sideLeftMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideLeftContent.rotation).to({ y: (degree - 90) * rad }, speed).easing(animType).start();
+
+    // new TWEEN.Tween(sideRightMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideRightContent.rotation).to({ y: (90 + degree) * rad }, speed).easing(animType).start();
+
+    // new TWEEN.Tween(sideTopMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideTopContent.rotation).to({ z: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideTopContentAxisZ.rotation).to({ y: -degree * rad }, speed).easing(animType).start();
+
+    // new TWEEN.Tween(sideBottomMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideBottomContent.rotation).to({ z: -degree * rad }, speed).easing(animType).start();
+    // new TWEEN.Tween(sideBottomContentAxisZ.rotation).to({ y: -degree * rad }, speed).easing(animType).start();
+
+
+    new TWEEN.Tween(cameraOriginOrbit.rotation).to({ y: degree * rad }, speed).easing(animType2).start()
+    // new TWEEN.Tween(cameraOriginOrbit.position).to({ x: 10 }, speed).easing(animType2).start()
+
+    new TWEEN.Tween(camera.position).to({ z: cameraPosZ }, speed / 2).easing(animType2).start()
+        .onComplete(() => {
+            new TWEEN.Tween(camera.position).to({ z: cameraPosZ - cameraPosDistance }, speed / 2).easing(animType2).start();
+        });
 }
-
-function animationSideHorizontal2(degree) {
-    console.log('animationSideHorizontal-2 ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'z', degree)
-    rotate(sideBackContent, 'z', degree)
-    rotate(sideLeftContent, 'z', degree)
-    rotate(sideRightContent, 'z', degree)
-    rotate(sideTopContent, 'y', -degree)
-    rotate(sideBottomContent, 'y', degree)
-
-    rotate(sideFrontMaskRoot, 'z', degree)
-    rotate(sideBackMaskRoot, 'z', degree)
-    rotate(sideLeftMaskRoot, 'z', degree)
-    rotate(sideRightMaskRoot, 'z', degree)
-    rotate(sideTopMaskRoot, 'z', degree)
-    rotate(sideBottomMaskRoot, 'z', degree)
-
-}
-
 
 
 function animationSideVertical(degree) {
-    console.log('animationSideVertical ', rotationCounterHorizontal, rotationCounterVertical)
+    const speed = 1000;
+    const animType = TWEEN.Easing.Quartic.InOut;
+    const animType2 = TWEEN.Easing.Quadratic.InOut;
 
-    rotate(sideFrontContent, 'x', degree)
-    rotate(sideBackContent, 'x', degree)
-    rotate(sideLeftContent, 'x', degree)
-    rotate(sideRightContent, 'x', degree)
-    rotate(sideTopContent, 'x', degree)
-    rotate(sideBottomContent, 'x', degree)
 
-    rotate(sideFrontMaskRoot, 'x', degree)
-    rotate(sideBackMaskRoot, 'x', degree)
-    rotate(sideLeftMaskRoot, 'x', degree)
-    rotate(sideRightMaskRoot, 'x', degree)
-    rotate(sideTopMaskRoot, 'x', degree)
-    rotate(sideBottomMaskRoot, 'x', degree)
+    new TWEEN.Tween(cameraOriginOrbit.rotation).to({ x: degree * rad }, speed).easing(animType2).start()
 
+
+    new TWEEN.Tween(camera.position).to({ z: cameraPosZ }, speed / 2).easing(animType2).start()
+        .onComplete(() => {
+            new TWEEN.Tween(camera.position).to({ z: cameraPosZ - cameraPosDistance }, speed / 2).easing(animType2).start();
+        });
 }
 
-function animationSideVertical2(degree) {
-
-    console.log('animationSideVertical-2 ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'z', degree)
-    rotate(sideBackContent, 'z', -degree)
-    rotate(sideLeftContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideRightContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideTopContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideBottomContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-
-    rotate(sideFrontMaskRoot, 'z', degree)
-    rotate(sideBackMaskRoot, 'z', degree)
-    rotate(sideLeftMaskRoot, 'z', degree)
-    rotate(sideRightMaskRoot, 'z', degree)
-    rotate(sideTopMaskRoot, 'z', degree)
-    rotate(sideBottomMaskRoot, 'z', degree)
-
-}
-
-
-
-function cameraOrbitX(degree) {
-    new TWEEN.Tween(cameraOrbitRotation.rotation).to({ x: degree * rad }, speed).easing(animType).start();
-}
-
-function cameraOrbitY(degree) {
-    new TWEEN.Tween(cameraOrbitRotation.rotation).to({ z: degree * rad }, speed).easing(animType).start();
-}
 
 
 
@@ -495,8 +435,6 @@ function render() {
 
     const time = performance.now() * 0.001 + 6000;
     // console.log(time)
-
-
 
     // sideFrontMaskRoot.rotation.y += rad * 1
     // front.rotation.y += rad * 1
@@ -540,86 +478,31 @@ function onWindowResize() {
     composer.composer.setSize(width, height);
 
     if (width < 1000)
-        camera.position.z = ((cameraPosZ - cameraPosDistance) / width) * 1000; w
+        camera.position.z = ((cameraPosZ - cameraPosDistance) / width) * 1000;
 }
 
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
     if (keyCode == 87) {
-        // boxRotationVertical -= 90;
-
-
-        if (rotationCounterVertical == 0) animationSideVertical(-90)
-        if (rotationCounterVertical == 2) animationSideVertical(-90)
-
-        if (rotationCounterVertical == 1) animationSideVertical2(-90)
-        if (rotationCounterVertical == 3) animationSideVertical2(90)
-
-
-        rorationCounterHorizontalMod(1)
-
-
-        // cameraOrbitX(boxRotationVertical)
+        boxRotationVertical -= 90;
+        animationSideVertical(boxRotationVertical)
 
     } else if (keyCode == 83) {
-        // boxRotationVertical += 90;
-
-        if (rotationCounterVertical == 0) animationSideVertical(90)
-        if (rotationCounterVertical == 2) animationSideVertical(90)
-
-        if (rotationCounterVertical == 1) animationSideVertical2(90)
-        if (rotationCounterVertical == 3) animationSideVertical2(-90)
-
-
-        rorationCounterHorizontalMod(-1)
-
-        // animationSideVertical(90);
-        // cameraOrbitX(boxRotationVertical)
+        boxRotationVertical -= 90;
+        animationSideVertical(-boxRotationVertical)
 
     } else if (keyCode == 65) {
-        // boxRotationHorizontal -= 90;
-        // animationSideHorizontal(90);
-
-
-        if (rotationCounterHorizontal == 0) animationSideHorizontal(-90)
-        if (rotationCounterHorizontal == 2) animationSideHorizontal(90)
-
-        if (rotationCounterHorizontal == 1) animationSideHorizontal2(-90)
-        if (rotationCounterHorizontal == 3) animationSideHorizontal2(90)
-
-        rorationCounterVerticalMod(1)
-
-        // cameraOrbitY(boxRotationHorizontal)
+        boxRotationHorizontal -= 90;
+        animationSideHorizontal(boxRotationHorizontal);
 
     } else if (keyCode == 68) {
-        // boxRotationHorizontal += 90;
-
-
-        // animationSideHorizontal(-90);
-
-        if (rotationCounterHorizontal == 0) animationSideHorizontal(90)
-        if (rotationCounterHorizontal == 2) animationSideHorizontal(-90)
-
-        if (rotationCounterHorizontal == 1) animationSideHorizontal2(90)
-        if (rotationCounterHorizontal == 3) animationSideHorizontal2(-90)
-
-        rorationCounterVerticalMod(-1)
-
-
-        // cameraOrbitY(boxRotationHorizontal)
+        boxRotationHorizontal += 90;
+        animationSideHorizontal(boxRotationHorizontal);
 
     } else if (keyCode == 32) {
         // cube.position.set(0, 0, 0);
         console.log("space");
     }
-
-
-    // console.log(sideFrontContent.rotation)
-    console.log('rot counter', rotationCounterHorizontal, rotationCounterVertical)
-
-
-
-
 }
 
 function onDocumentMouseMove(event) {
