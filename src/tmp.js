@@ -7,8 +7,6 @@ import { Composer } from "./composer.js";
 
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
-import TWEEN from '@tweenjs/tween.js'
-// import TWEEN from '../node_modules/@tweenjs/tween.js/dist/tween.umd'
 // import { TWEEN } from '../node_modules/@tweenjs/tween.js/dist/tween.cjs.js'
 
 let camera, composer, renderer, capturer;
@@ -21,13 +19,10 @@ var material;
 var sideFront, sideBack, sideLeft, sideRight, sideTop, sideBottom;
 var sideFrontMask, sideBackMask, sideLeftMask, sideRightMask, sideTopMask, sideBottomMask;
 let sideFrontMaskRoot, sideBackMaskRoot, sideLeftMaskRoot, sideRightMaskRoot, sideTopMaskRoot, sideBottomMaskRoot;
-let sideFrontContent, sideBackContent, sideLeftContent, sideRightContent, sideTopContent, sideBottomContent;
-let sideFrontContentAxisZ, sideBackContentAxisZ, sideLeftContentAxisZ, sideRightContentAxisZ, sideTopContentAxisZ, sideBottomContentAxisZ;
+let front, back, left, right, top, bottom;
 let pointLightFront;
 
 var [cubeRotation, meshPositionXY, meshPositionZ, meshRotationXY, meshRotationZ, meshScale, cameraOrbit] = [true, true, true, true, true, true, false]
-
-var cameraOrbitRotationX, cameraOrbitRotationY, cameraOrbitRotationZ
 
 const textureImage01 = new THREE.TextureLoader().load("maps/image-01.jpg");
 const textureImage02 = new THREE.TextureLoader().load("maps/image-02.jpg");
@@ -40,12 +35,6 @@ const textureImageBG1 = new THREE.TextureLoader().load("maps/bg_hexgon.jpg");
 const textureImageBG2 = new THREE.TextureLoader().load("maps/bg_dune.jpg");
 const textureImageBG3 = new THREE.TextureLoader().load("maps/bg_leather.jpg");
 const textureImageBG4 = new THREE.TextureLoader().load("maps/bg_gradient.jpg");
-// const texSpaceNX = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_nx.jpg");
-// const texSpaceNY = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_ny.jpg");
-// const texSpaceNZ = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_nz.jpg");
-// const texSpacePX = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_px.jpg");
-// const texSpacePY = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_py.jpg");
-// const texSpacePZ = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_pz.jpg");
 
 
 const cameraPosZ = 15
@@ -55,12 +44,7 @@ var componentMeshArray = [];
 let componentPosZ = 0.1
 
 const rad = Math.PI / 180;
-var boxRotationHorizontal = 0;
-var boxRotationVertical = 0;
-var rotationSwitch = true
-
-var rotationCounterHorizontal = 0
-var rotationCounterVertical = 0
+var boxRotation = 0;
 
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
@@ -85,14 +69,6 @@ function init() {
     // scene.clearAlpha = 1;
     // scene.clear = false;
 
-
-    const cubeMap = new THREE.CubeTextureLoader().setPath('./maps/').load(
-        ['dark-s_px.jpg', 'dark-s_nx.jpg', 'dark-s_py.jpg', 'dark-s_ny.jpg', 'dark-s_pz.jpg', 'dark-s_nz.jpg']
-    )
-    scene.background = cubeMap
-
-
-
     sceneBack = new THREE.Scene();
     sceneLeft = new THREE.Scene();
     sceneRight = new THREE.Scene();
@@ -111,79 +87,34 @@ function init() {
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = cameraPosZ - cameraPosDistance;
 
-    camera.position.z = 15;
-    camera.position.x = 15;
-    camera.position.y = 15;
-
-
-    cameraOrbitRotationX = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    cameraOrbitRotationY = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    cameraOrbitRotationZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    cameraOrbitRotationX.add(cameraOrbitRotationY)
-    cameraOrbitRotationY.add(cameraOrbitRotationZ)
-    cameraOrbitRotationZ.add(camera)
-    scene.add(cameraOrbitRotationX)
-
-
-    // const near = 1;
-    // const far = 20;
-    // const color = new THREE.Color(0.1, 0, 0.2);
-    // sceneFront.fog = new THREE.Fog(color, near, far);
-    // sceneBack.fog = new THREE.Fog(color, near, far);
-    // sceneLeft.fog = new THREE.Fog(color, near, far);
-    // sceneRight.fog = new THREE.Fog(color, near, far);
-    // sceneTop.fog = new THREE.Fog(color, near, far);
-    // sceneBottom.fog = new THREE.Fog(color, near, far);
-    // scene.fog = new THREE.Fog(color, near, 200);
-
-
-
-
-
-
-
-
-
-    sideFrontContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    sideBackContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    sideLeftContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    sideRightContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    sideTopContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-    sideBottomContentAxisZ = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
-
-
-
+    // camera.position.z = 15;
+    // camera.position.x = 15;
+    // camera.position.y = 15;
 
     // content definition for the sides
-    // sideFrontContent = addContent(textureImageBG4);
-    sideFrontContent = addContent(textureImage01);
-    sideFrontContentAxisZ.add(sideFrontContent);
-    sceneFront.add(sideFrontContentAxisZ);
+    // front = addContent(textureImage01)
+    front = addContent(textureImageBG4);
+    sceneFront.add(front);
 
-    sideBackContent = addContent(textureImage02);
-    sideBackContent.rotation.y = Math.PI;
-    sideBackContentAxisZ.add(sideBackContent);
-    sceneBack.add(sideBackContentAxisZ);
+    back = addContent(textureImage02);
+    back.rotation.y = Math.PI;
+    sceneBack.add(back);
 
-    sideLeftContent = addContent(textureImage03);
-    sideLeftContent.rotation.y = -Math.PI / 2;
-    sideLeftContentAxisZ.add(sideLeftContent);
-    sceneLeft.add(sideLeftContentAxisZ);
+    left = addContent(textureImage03);
+    left.rotation.y = -Math.PI / 2;
+    sceneLeft.add(left);
 
-    sideRightContent = addContent(textureImage04);
-    sideRightContent.rotation.y = Math.PI / 2;
-    sideRightContentAxisZ.add(sideRightContent);
-    sceneRight.add(sideRightContentAxisZ);
+    right = addContent(textureImage04);
+    right.rotation.y = Math.PI / 2;
+    sceneRight.add(right);
 
-    sideTopContent = addContent(textureImage05);
-    sideTopContent.rotation.x = -Math.PI / 2;
-    sideTopContentAxisZ.add(sideTopContent);
-    sceneTop.add(sideTopContentAxisZ);
+    top = addContent(textureImage05);
+    top.rotation.x = -Math.PI / 2;
+    sceneTop.add(top);
 
-    sideBottomContent = addContent(textureImage06);
-    sideBottomContent.rotation.x = Math.PI / 2;
-    sideBottomContentAxisZ.add(sideBottomContent);
-    sceneBottom.add(sideBottomContentAxisZ);
+    bottom = addContent(textureImage06);
+    bottom.rotation.x = Math.PI / 2;
+    sceneBottom.add(bottom);
 
     // rendered core
     renderer = new THREE.WebGLRenderer();
@@ -284,42 +215,42 @@ function init() {
 
 
 
-    // // thumnail panel generation. create a 4 x 5 grid. 
-    // const panelSize = 1.5
-    // const panelSpace = panelSize + 0.2
-    // const textureImageArray = [textureImage01, textureImage02, textureImage03, textureImage04, textureImage05, textureImage06]
-    // var componentPlane = new THREE.PlaneGeometry(panelSize, panelSize);
+    // thumnail panel generation. create a 4 x 5 grid. 
+    const panelSize = 1.5
+    const panelSpace = panelSize + 0.2
+    const textureImageArray = [textureImage01, textureImage02, textureImage03, textureImage04, textureImage05, textureImage06]
+    var componentPlane = new THREE.PlaneGeometry(panelSize, panelSize);
 
-    // var diff = 0;
-    // const allCount = 20
+    var diff = 0;
+    const allCount = 20
 
-    // for (let i = 0; i < allCount; i++) {
+    for (let i = 0; i < allCount; i++) {
 
-    //     var componentMaterial = new THREE.MeshStandardMaterial({
-    //         color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1, map: textureImageArray[Math.floor(Math.random() * 5)],
-    //     });
+        var componentMaterial = new THREE.MeshStandardMaterial({
+            color: "#fff", transparent: true, side: THREE.DoubleSide, alphaTest: 0, opacity: 1, roughness: 1, map: textureImageArray[Math.floor(Math.random() * 5)],
+        });
 
-    //     var componentMesh = new THREE.Mesh(componentPlane, componentMaterial);
-    //     componentMesh.position.z = panelSpace;
-    //     componentMesh.position.x = (Math.round(i / 5 - 0.5) + panelSize / 2) * panelSpace;
-    //     componentMesh.position.y = -(5 * panelSpace) / 2 + i * panelSpace - diff + panelSize / 2;
-    //     componentMesh.position.z = componentPosZ
+        var componentMesh = new THREE.Mesh(componentPlane, componentMaterial);
+        componentMesh.position.z = panelSpace;
+        componentMesh.position.x = (Math.round(i / 5 - 0.5) + panelSize / 2) * panelSpace;
+        componentMesh.position.y = -(5 * panelSpace) / 2 + i * panelSpace - diff + panelSize / 2;
+        componentMesh.position.z = componentPosZ
 
-    //     componentMeshArray.push(componentMesh);
-    //     front.add(componentMesh);
-
-
-
-    //     if (i > 5 - 2) diff = (5 * panelSpace) * 1;
-    //     if (i > 10 - 2) diff = (5 * panelSpace) * 2;
-    //     if (i > 15 - 2) diff = (5 * panelSpace) * 3;
+        componentMeshArray.push(componentMesh);
+        front.add(componentMesh);
 
 
-    //     if (i > 5 - 1) componentMesh.position.y += panelSpace / 2
-    //     if (i > 10 - 1) componentMesh.position.y -= panelSpace / 2
-    //     if (i > 15 - 1) componentMesh.position.y += panelSpace / 2
-    //     componentMesh.userData = { 'x': componentMesh.position.x, 'y': componentMesh.position.y, 'z': componentMesh.position.z }
-    // }
+
+        if (i > 5 - 2) diff = (5 * panelSpace) * 1;
+        if (i > 10 - 2) diff = (5 * panelSpace) * 2;
+        if (i > 15 - 2) diff = (5 * panelSpace) * 3;
+
+
+        if (i > 5 - 1) componentMesh.position.y += panelSpace / 2
+        if (i > 10 - 1) componentMesh.position.y -= panelSpace / 2
+        if (i > 15 - 1) componentMesh.position.y += panelSpace / 2
+        componentMesh.userData = { 'x': componentMesh.position.x, 'y': componentMesh.position.y, 'z': componentMesh.position.z }
+    }
 
 
 
@@ -376,130 +307,36 @@ function init() {
     document.addEventListener("mousedown", onMouseDown, false);
 }
 
-const speed = 500;
-const animType = TWEEN.Easing.Quartic.InOut;
-const animType2 = TWEEN.Easing.Quadratic.InOut;
+function animationSide(degree) {
+    const speed = 1000;
+    const animType = TWEEN.Easing.Quartic.InOut;
+    const animType2 = TWEEN.Easing.Quadratic.InOut;
 
-function rotate(content, axis, degree) {
+    new TWEEN.Tween(sideFrontMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(front.rotation).to({ y: degree * rad }, speed).easing(animType).start();
 
-    if (axis == 'x') { new TWEEN.Tween(content.rotation).to({ x: content.rotation.x + degree * rad }, speed).easing(animType).start() }
-    if (axis == 'y') { new TWEEN.Tween(content.rotation).to({ y: content.rotation.y + degree * rad }, speed).easing(animType).start() }
-    if (axis == 'z') { new TWEEN.Tween(content.rotation).to({ z: content.rotation.z + degree * rad }, speed).easing(animType).start() }
+    new TWEEN.Tween(sideBackMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(back.rotation).to({ y: (degree - 180) * rad }, speed).easing(animType).start();
+
+    new TWEEN.Tween(sideLeftMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(left.rotation).to({ y: (degree - 90) * rad }, speed).easing(animType).start();
+
+    new TWEEN.Tween(sideRightMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(right.rotation).to({ y: (90 + degree) * rad }, speed).easing(animType).start();
+
+    new TWEEN.Tween(sideTopMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(top.rotation).to({ z: degree * rad }, speed).easing(animType).start();
+
+    new TWEEN.Tween(sideBottomMaskRoot.rotation).to({ y: degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(bottom.rotation).to({ z: -degree * rad }, speed).easing(animType).start();
+
+    new TWEEN.Tween(camera.position).to({ z: cameraPosZ }, speed / 2).easing(animType2).start()
+        .onComplete(() => {
+            new TWEEN.Tween(camera.position).to({ z: cameraPosZ - cameraPosDistance }, speed / 2).easing(animType2).start();
+        });
 }
 
 
-function rorationCounterHorizontalMod(number) {
-    rotationCounterHorizontal += number
-
-    if (rotationCounterHorizontal == -1) rotationCounterHorizontal = 3
-    if (rotationCounterHorizontal == 4) rotationCounterHorizontal = 0
-}
-
-
-function rorationCounterVerticalMod(number) {
-    rotationCounterVertical += number
-
-    if (rotationCounterVertical == -1) rotationCounterVertical = 3
-    if (rotationCounterVertical == 4) rotationCounterVertical = 0
-}
-
-
-function animationSideHorizontal(degree) {
-    console.log('animationSideHorizontal ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'y', degree)
-    rotate(sideBackContent, 'y', degree)
-    rotate(sideLeftContent, 'y', degree)
-    rotate(sideRightContent, 'y', degree)
-    rotate(sideTopContent, 'z', degree)
-    rotate(sideBottomContent, 'z', -degree)
-
-    rotate(sideFrontMaskRoot, 'y', degree)
-    rotate(sideBackMaskRoot, 'y', degree)
-    rotate(sideLeftMaskRoot, 'y', degree)
-    rotate(sideRightMaskRoot, 'y', degree)
-    rotate(sideTopMaskRoot, 'y', degree)
-    rotate(sideBottomMaskRoot, 'y', degree)
-}
-
-function animationSideHorizontal2(degree) {
-    console.log('animationSideHorizontal-2 ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'z', degree)
-    rotate(sideBackContent, 'z', degree)
-    rotate(sideLeftContent, 'z', degree)
-    rotate(sideRightContent, 'z', degree)
-    rotate(sideTopContent, 'y', -degree)
-    rotate(sideBottomContent, 'y', degree)
-
-    rotate(sideFrontMaskRoot, 'z', degree)
-    rotate(sideBackMaskRoot, 'z', degree)
-    rotate(sideLeftMaskRoot, 'z', degree)
-    rotate(sideRightMaskRoot, 'z', degree)
-    rotate(sideTopMaskRoot, 'z', degree)
-    rotate(sideBottomMaskRoot, 'z', degree)
-
-}
-
-
-
-function animationSideVertical(degree) {
-    console.log('animationSideVertical ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'x', degree)
-    rotate(sideBackContent, 'x', degree)
-    rotate(sideLeftContent, 'x', degree)
-    rotate(sideRightContent, 'x', degree)
-    rotate(sideTopContent, 'x', degree)
-    rotate(sideBottomContent, 'x', degree)
-
-    rotate(sideFrontMaskRoot, 'x', degree)
-    rotate(sideBackMaskRoot, 'x', degree)
-    rotate(sideLeftMaskRoot, 'x', degree)
-    rotate(sideRightMaskRoot, 'x', degree)
-    rotate(sideTopMaskRoot, 'x', degree)
-    rotate(sideBottomMaskRoot, 'x', degree)
-
-}
-
-function animationSideVertical2(degree) {
-
-    console.log('animationSideVertical-2 ', rotationCounterHorizontal, rotationCounterVertical)
-
-    rotate(sideFrontContent, 'z', degree)
-    rotate(sideBackContent, 'z', -degree)
-    rotate(sideLeftContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideRightContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideTopContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-    rotate(sideBottomContent, 'x', rotationCounterVertical == 3 ? -degree : degree)
-
-    rotate(sideFrontMaskRoot, 'z', degree)
-    rotate(sideBackMaskRoot, 'z', degree)
-    rotate(sideLeftMaskRoot, 'z', degree)
-    rotate(sideRightMaskRoot, 'z', degree)
-    rotate(sideTopMaskRoot, 'z', degree)
-    rotate(sideBottomMaskRoot, 'z', degree)
-
-}
-
-
-
-function cameraOrbitX(degree) {
-    // new TWEEN.Tween(cameraOrbitRotationX.rotation).to({ x: degree * rad }, speed).easing(animType).start();
-    new TWEEN.Tween(cameraOrbitRotationX.rotation).to({ x: cameraOrbitRotationX.rotation.x + degree * rad }, speed).easing(animType).start();
-}
-
-function cameraOrbitY(degree) {
-    // new TWEEN.Tween(cameraOrbitRotationY.rotation).to({ y: degree * rad }, speed).easing(animType).start();
-    new TWEEN.Tween(cameraOrbitRotationY.rotation).to({ y: cameraOrbitRotationY.rotation.y + degree * rad }, speed).easing(animType).start();
-}
-
-
-
-function cameraOrbitZ(degree) {
-    // new TWEEN.Tween(cameraOrbitRotationZ.rotation).to({ x: degree * rad }, speed).easing(animType).start();
-    new TWEEN.Tween(cameraOrbitRotationZ.rotation).to({ x: cameraOrbitRotationZ.rotation.x + degree * rad }, speed).easing(animType).start();
-}
 
 
 function render() {
@@ -507,8 +344,6 @@ function render() {
 
     const time = performance.now() * 0.001 + 6000;
     // console.log(time)
-
-
 
     // sideFrontMaskRoot.rotation.y += rad * 1
     // front.rotation.y += rad * 1
@@ -552,100 +387,25 @@ function onWindowResize() {
     composer.composer.setSize(width, height);
 
     if (width < 1000)
-        camera.position.z = ((cameraPosZ - cameraPosDistance) / width) * 1000; w
+        camera.position.z = ((cameraPosZ - cameraPosDistance) / width) * 1000;
 }
 
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
     if (keyCode == 87) {
-        boxRotationVertical -= 90;
-        // if (rotationCounterVertical == 0) animationSideVertical(-90)
-        // if (rotationCounterVertical == 2) animationSideVertical(-90)
-        // if (rotationCounterVertical == 1) animationSideVertical2(-90)
-        // if (rotationCounterVertical == 3) animationSideVertical2(90)
-
-
-        if (rotationCounterVertical == 0) { cameraOrbitX(90); console.log('A-01'); }
-        if (rotationCounterVertical == 2) { cameraOrbitX(-90); console.log('A-02'); }
-
-        if (rotationCounterVertical == 1) { cameraOrbitZ(90); console.log('A-03'); }
-        if (rotationCounterVertical == 3) { cameraOrbitZ(90); console.log('A-04'); }
-
-        rorationCounterHorizontalMod(1)
-
-        // cameraOrbitX(boxRotationVertical)
-        // cameraOrbitZ(boxRotationVertical)
-
+        animationTop(90)
     } else if (keyCode == 83) {
-        boxRotationVertical += 90;
-
-        // if (rotationCounterVertical == 0) animationSideVertical(90)
-        // if (rotationCounterVertical == 2) animationSideVertical(90)
-        // if (rotationCounterVertical == 1) animationSideVertical2(90)
-        // if (rotationCounterVertical == 3) animationSideVertical2(-90)
-
-        if (rotationCounterVertical == 0) { cameraOrbitX(-90); console.log('B-01'); }
-        if (rotationCounterVertical == 2) { cameraOrbitX(90); console.log('B-02'); }
-
-        if (rotationCounterVertical == 1) { cameraOrbitZ(-90); console.log('B-03'); }
-        if (rotationCounterVertical == 3) { cameraOrbitZ(-90); console.log('B-04'); }
-
-        rorationCounterHorizontalMod(-1)
-
-        // animationSideVertical(90);
-        // cameraOrbitX(boxRotationVertical)
-        // cameraOrbitZ(boxRotationVertical)
-
+        animationTop(0)
     } else if (keyCode == 65) {
-        boxRotationHorizontal -= 90;
-        // animationSideHorizontal(90);
-
-        // if (rotationCounterHorizontal == 0) animationSideHorizontal(-90)
-        // if (rotationCounterHorizontal == 2) animationSideHorizontal(90)
-        // if (rotationCounterHorizontal == 1) animationSideHorizontal2(-90)
-        // if (rotationCounterHorizontal == 3) animationSideHorizontal2(90)
-
-        if (rotationCounterHorizontal == 0) { cameraOrbitY(-90); console.log('C-01'); }
-        if (rotationCounterHorizontal == 2) { cameraOrbitY(90); console.log('C-02'); }
-
-        if (rotationCounterHorizontal == 1) { cameraOrbitY(-90); console.log('C-03'); }
-        if (rotationCounterHorizontal == 3) { cameraOrbitY(-90); console.log('C-04'); }
-
-        rorationCounterVerticalMod(1)
-
-        // cameraOrbitY(-90)
-
+        boxRotation -= 90;
+        animationSide(boxRotation);
     } else if (keyCode == 68) {
-        boxRotationHorizontal += 90;
-        // animationSideHorizontal(-90);
-
-        // if (rotationCounterHorizontal == 0) animationSideHorizontal(90)
-        // if (rotationCounterHorizontal == 2) animationSideHorizontal(-90)
-        // if (rotationCounterHorizontal == 1) animationSideHorizontal2(90)
-        // if (rotationCounterHorizontal == 3) animationSideHorizontal2(-90)
-
-        rorationCounterVerticalMod(-1)
-
-        if (rotationCounterHorizontal == 0) { cameraOrbitY(90); console.log('D-01'); }
-        if (rotationCounterHorizontal == 2) { cameraOrbitY(-90); console.log('D-02'); }
-
-        if (rotationCounterHorizontal == 1) { cameraOrbitY(90); console.log('D-03'); }
-        if (rotationCounterHorizontal == 3) { cameraOrbitY(90); console.log('D-04'); }
-
-        // cameraOrbitY(90)
-
+        boxRotation += 90;
+        animationSide(boxRotation);
     } else if (keyCode == 32) {
         // cube.position.set(0, 0, 0);
         console.log("space");
     }
-
-
-    // console.log(sideFrontContent.rotation)
-    console.log('rot counter Hor:', rotationCounterHorizontal, 'Ver: ', rotationCounterVertical)
-    console.log('---------------------------------')
-
-
-
 }
 
 function onDocumentMouseMove(event) {
@@ -653,15 +413,15 @@ function onDocumentMouseMove(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    // if (cubeRotation) {
-    //     camera.position.x = -mouse.x / 2
-    //     camera.position.y = -mouse.y / 2
-    //     camera.lookAt(new THREE.Vector3(0, 0, 0))
-    // } else {
-    //     camera.position.x = 0
-    //     camera.position.y = 0
-    //     camera.lookAt(new THREE.Vector3(0, 0, 0))
-    // }
+    if (cubeRotation) {
+        camera.position.x = -mouse.x / 2
+        camera.position.y = -mouse.y / 2
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+    } else {
+        camera.position.x = 0
+        camera.position.y = 0
+        camera.lookAt(new THREE.Vector3(0, 0, 0))
+    }
 
     componentMeshArray.forEach((mesh) => {
         // var rotX = (mesh.position.y / 10 - mouse.y) / 5;
