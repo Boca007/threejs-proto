@@ -29,17 +29,17 @@ let cameraOriginOrbit
 
 var [cubeRotation, meshPositionXY, meshPositionZ, meshRotationXY, meshRotationZ, meshScale, cameraOrbit] = [true, true, true, true, true, true, false]
 
-const textureImage01 = new THREE.TextureLoader().load("maps/image-01.jpg");
-const textureImage02 = new THREE.TextureLoader().load("maps/image-02.jpg");
-const textureImage03 = new THREE.TextureLoader().load("maps/image-03.jpg");
-const textureImage04 = new THREE.TextureLoader().load("maps/image-04.jpg");
-const textureImage05 = new THREE.TextureLoader().load("maps/image-05.jpg");
-const textureImage06 = new THREE.TextureLoader().load("maps/image-06.jpg");
-const textureImageBG = new THREE.TextureLoader().load("maps/bg_sreg.jpg");
-const textureImageBG1 = new THREE.TextureLoader().load("maps/bg_hexgon.jpg");
-const textureImageBG2 = new THREE.TextureLoader().load("maps/bg_dune.jpg");
-const textureImageBG3 = new THREE.TextureLoader().load("maps/bg_leather.jpg");
-const textureImageBG4 = new THREE.TextureLoader().load("maps/bg_gradient.jpg");
+const textureImage01 = new THREE.TextureLoader().load("./maps/image-01.jpg");
+const textureImage02 = new THREE.TextureLoader().load("./maps/image-02.jpg");
+const textureImage03 = new THREE.TextureLoader().load("./maps/image-03.jpg");
+const textureImage04 = new THREE.TextureLoader().load("./maps/image-04.jpg");
+const textureImage05 = new THREE.TextureLoader().load("./maps/image-05.jpg");
+const textureImage06 = new THREE.TextureLoader().load("./maps/image-06.jpg");
+const textureImageBG = new THREE.TextureLoader().load("./maps/bg_sreg.jpg");
+const textureImageBG1 = new THREE.TextureLoader().load("./maps/bg_hexgon.jpg");
+const textureImageBG2 = new THREE.TextureLoader().load("./maps/bg_dune.jpg");
+const textureImageBG3 = new THREE.TextureLoader().load("./maps/bg_leather.jpg");
+const textureImageBG4 = new THREE.TextureLoader().load("./maps/bg_gradient.jpg");
 // const texSpaceNX = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_nx.jpg");
 // const texSpaceNY = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_ny.jpg");
 // const texSpaceNZ = new THREE.TextureLoader().load("three/examples/textures/cube/MilkyWay/dark-s_nz.jpg");

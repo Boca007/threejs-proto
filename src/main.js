@@ -86,10 +86,21 @@ function init() {
     // scene.clear = false;
 
 
-    const cubeMap = new THREE.CubeTextureLoader().setPath('./maps/').load(
-        ['dark-s_px.jpg', 'dark-s_nx.jpg', 'dark-s_py.jpg', 'dark-s_ny.jpg', 'dark-s_pz.jpg', 'dark-s_nz.jpg']
-    )
-    scene.background = cubeMap
+    // ENV v1
+    // const cubeMap = new THREE.CubeTextureLoader().setPath('./maps/').load(
+    //     ['dark-s_px.jpg', 'dark-s_nx.jpg', 'dark-s_py.jpg', 'dark-s_ny.jpg', 'dark-s_pz.jpg', 'dark-s_nz.jpg']
+    // )
+    // scene.background = cubeMap
+
+    // ENV v2-3 
+    const geometry = new THREE.SphereGeometry(500, 60, 40);
+    geometry.scale(- 1, 1, 1);
+    // const texture = new THREE.TextureLoader().load('maps/SPACE011SX.jpg');
+    const texture = new THREE.TextureLoader().load('maps/SPACE024SX.jpg');
+    const material = new THREE.MeshBasicMaterial({ map: texture });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
 
 
 
@@ -111,9 +122,9 @@ function init() {
     camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = cameraPosZ - cameraPosDistance;
 
-    camera.position.z = 15;
-    camera.position.x = 15;
-    camera.position.y = 15;
+    // camera.position.z = 15;
+    // camera.position.x = 15;
+    // camera.position.y = 15;
 
 
     cameraOrbitRotationX = new THREE.Mesh(new THREE.PlaneGeometry(0, 0));
@@ -498,7 +509,7 @@ function cameraOrbitY(degree) {
 
 function cameraOrbitZ(degree) {
     // new TWEEN.Tween(cameraOrbitRotationZ.rotation).to({ x: degree * rad }, speed).easing(animType).start();
-    new TWEEN.Tween(cameraOrbitRotationZ.rotation).to({ x: cameraOrbitRotationZ.rotation.x + degree * rad }, speed).easing(animType).start();
+    new TWEEN.Tween(cameraOrbitRotationZ.rotation).to({ z: cameraOrbitRotationZ.rotation.z + degree * rad }, speed).easing(animType).start();
 }
 
 
@@ -558,46 +569,53 @@ function onWindowResize() {
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
     if (keyCode == 87) {
-        boxRotationVertical -= 90;
+        // boxRotationVertical -= 90;
         // if (rotationCounterVertical == 0) animationSideVertical(-90)
         // if (rotationCounterVertical == 2) animationSideVertical(-90)
         // if (rotationCounterVertical == 1) animationSideVertical2(-90)
         // if (rotationCounterVertical == 3) animationSideVertical2(90)
 
+        cameraOrbitX(-90)
 
-        if (rotationCounterVertical == 0) { cameraOrbitX(90); console.log('A-01'); }
-        if (rotationCounterVertical == 2) { cameraOrbitX(-90); console.log('A-02'); }
+        // if (rotationCounterVertical == 0) { cameraOrbitX(90); console.log('A-01'); }
+        // if (rotationCounterVertical == 2) { cameraOrbitX(-90); console.log('A-02'); }
 
-        if (rotationCounterVertical == 1) { cameraOrbitZ(90); console.log('A-03'); }
-        if (rotationCounterVertical == 3) { cameraOrbitZ(90); console.log('A-04'); }
+        // if (rotationCounterVertical == 1) { cameraOrbitY(90); console.log('A-03'); }
+        // if (rotationCounterVertical == 3) { cameraOrbitY(90); console.log('A-04'); }
 
-        rorationCounterHorizontalMod(1)
+        // rorationCounterHorizontalMod(1)
 
         // cameraOrbitX(boxRotationVertical)
         // cameraOrbitZ(boxRotationVertical)
 
+        // cameraOrbitZ(90)
+
     } else if (keyCode == 83) {
-        boxRotationVertical += 90;
+        // boxRotationVertical += 90;
 
         // if (rotationCounterVertical == 0) animationSideVertical(90)
         // if (rotationCounterVertical == 2) animationSideVertical(90)
         // if (rotationCounterVertical == 1) animationSideVertical2(90)
         // if (rotationCounterVertical == 3) animationSideVertical2(-90)
 
-        if (rotationCounterVertical == 0) { cameraOrbitX(-90); console.log('B-01'); }
-        if (rotationCounterVertical == 2) { cameraOrbitX(90); console.log('B-02'); }
+        cameraOrbitX(90)
 
-        if (rotationCounterVertical == 1) { cameraOrbitZ(-90); console.log('B-03'); }
-        if (rotationCounterVertical == 3) { cameraOrbitZ(-90); console.log('B-04'); }
+        // if (rotationCounterVertical == 0) { cameraOrbitX(-90); console.log('B-01'); }
+        // if (rotationCounterVertical == 2) { cameraOrbitX(90); console.log('B-02'); }
 
-        rorationCounterHorizontalMod(-1)
+        // if (rotationCounterVertical == 1) { cameraOrbitZ(-90); console.log('B-03'); }
+        // if (rotationCounterVertical == 3) { cameraOrbitZ(-90); console.log('B-04'); }
+
+        // rorationCounterHorizontalMod(-1)
 
         // animationSideVertical(90);
         // cameraOrbitX(boxRotationVertical)
         // cameraOrbitZ(boxRotationVertical)
 
+        // cameraOrbitZ(-90)
+
     } else if (keyCode == 65) {
-        boxRotationHorizontal -= 90;
+        // boxRotationHorizontal -= 90;
         // animationSideHorizontal(90);
 
         // if (rotationCounterHorizontal == 0) animationSideHorizontal(-90)
@@ -605,18 +623,22 @@ function onDocumentKeyDown(event) {
         // if (rotationCounterHorizontal == 1) animationSideHorizontal2(-90)
         // if (rotationCounterHorizontal == 3) animationSideHorizontal2(90)
 
-        if (rotationCounterHorizontal == 0) { cameraOrbitY(-90); console.log('C-01'); }
-        if (rotationCounterHorizontal == 2) { cameraOrbitY(90); console.log('C-02'); }
+        cameraOrbitY(-90)
 
-        if (rotationCounterHorizontal == 1) { cameraOrbitY(-90); console.log('C-03'); }
-        if (rotationCounterHorizontal == 3) { cameraOrbitY(-90); console.log('C-04'); }
+        // if (rotationCounterHorizontal == 0) { cameraOrbitY(-90); console.log('C-01'); }
+        // if (rotationCounterHorizontal == 2) { cameraOrbitY(90); console.log('C-02'); }
 
-        rorationCounterVerticalMod(1)
+        // if (rotationCounterHorizontal == 1) { cameraOrbitY(-90); console.log('C-03'); }
+        // if (rotationCounterHorizontal == 3) { cameraOrbitY(-90); console.log('C-04'); }
+
+        // rorationCounterVerticalMod(1)
 
         // cameraOrbitY(-90)
 
+        // animationSideHorizontal(-90)
+
     } else if (keyCode == 68) {
-        boxRotationHorizontal += 90;
+        // boxRotationHorizontal += 90;
         // animationSideHorizontal(-90);
 
         // if (rotationCounterHorizontal == 0) animationSideHorizontal(90)
@@ -624,21 +646,26 @@ function onDocumentKeyDown(event) {
         // if (rotationCounterHorizontal == 1) animationSideHorizontal2(90)
         // if (rotationCounterHorizontal == 3) animationSideHorizontal2(-90)
 
-        rorationCounterVerticalMod(-1)
+        cameraOrbitY(90)
 
-        if (rotationCounterHorizontal == 0) { cameraOrbitY(90); console.log('D-01'); }
-        if (rotationCounterHorizontal == 2) { cameraOrbitY(-90); console.log('D-02'); }
 
-        if (rotationCounterHorizontal == 1) { cameraOrbitY(90); console.log('D-03'); }
-        if (rotationCounterHorizontal == 3) { cameraOrbitY(90); console.log('D-04'); }
+
+        // if (rotationCounterHorizontal == 0) { cameraOrbitY(90); console.log('D-01'); }
+        // if (rotationCounterHorizontal == 2) { cameraOrbitY(-90); console.log('D-02'); }
+
+        // if (rotationCounterHorizontal == 1) { cameraOrbitY(90); console.log('D-03'); }
+        // if (rotationCounterHorizontal == 3) { cameraOrbitY(90); console.log('D-04'); }
+
+        // rorationCounterVerticalMod(-1)
 
         // cameraOrbitY(90)
+
+        // animationSideHorizontal(90)
 
     } else if (keyCode == 32) {
         // cube.position.set(0, 0, 0);
         console.log("space");
     }
-
 
     // console.log(sideFrontContent.rotation)
     console.log('rot counter Hor:', rotationCounterHorizontal, 'Ver: ', rotationCounterVertical)
